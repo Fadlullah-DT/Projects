@@ -1,0 +1,52 @@
+---
+- name: Extract all task names recursively from tasks folder
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    tasks_root: "./tasks"   # starting folder
+
+  tasks:
+    - name: Find all YAML files under tasks (recursively)
+      ansible.builtin.find:
+        paths: "{{ tasks_root }}"
+        patterns: "*.yml"
+        recurse: true
+      register: task_files
+
+    - name: Extract task names from each YAML file
+      ansible.builtin.shell: >
+        /usr/local/bin/yq e '.[] | select(has("name")) | .name' "{{ item.path }}" || true
+      loop: "{{ task_files.files }}"
+      register: task_names_raw
+      changed_when: false
+
+    - name: Combine file name and extracted task names
+      ansible.builtin.set_fact:
+        all_task_names: >-
+          {{
+            (all_task_names | default([])) +
+            ([{
+              'file': item.item.path | basename,
+              'path': item.item.path,
+              'names': item.stdout_lines
+            }])
+          }}
+      loop: "{{ task_names_raw.results }}"
+
+    - name: Save results to file
+      ansible.builtin.copy:
+        dest: "./all_task_names.yml"
+        content: |
+          {% for entry in all_task_names %}
+          file: {{ entry.file }}
+          path: {{ entry.path }}
+          tasks:
+          {% for name in entry.names %}
+            - {{ name }}
+          {% endfor %}
+          {% endfor %}
+
+    - name: Display summary
+      ansible.builtin.debug:
+        msg: "Extracted {{ all_task_names | length }} task files with task names."

@@ -1,0 +1,9 @@
+all:
+  hosts:
+    win11:
+      ansible_host: 192.168.0.183
+      ansible_user: Fadmin
+      ansible_password: P@55word01234567
+      ansible_connection: winrm
+      ansible_winrm_transport: basic
+      ansible_port: 5985

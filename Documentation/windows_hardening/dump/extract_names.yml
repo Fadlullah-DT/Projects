@@ -1,0 +1,33 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars:
+    tasks_directory: /home/fadmin/WindowsHardening/win11-101625/tasks
+    all_task_names: []
+
+  tasks:
+    - name: Find all task files
+      ansible.builtin.find:
+        paths: "{{ tasks_directory }}"
+        patterns: "*.yml"
+        recurse: yes
+      register: found_tasks
+
+    - name: Extract task names from each file
+      ansible.builtin.command: >
+        yq e '.[] | .name // ""' {{ item.path }}
+      changed_when: false
+      loop: "{{ found_tasks.files }}"
+      register: extracted_names
+      ignore_errors: true
+
+    - name: Collect all task names into a list
+      ansible.builtin.set_fact:
+        all_task_names: "{{ (all_task_names | default([])) + (item.stdout_lines | default([])) }}"
+      loop: "{{ extracted_names.results }}"
+      loop_control:
+        label: "{{ item.item.path }}"
+
+    - name: Print the list of all task names
+      ansible.builtin.debug:
+        var: all_task_names
