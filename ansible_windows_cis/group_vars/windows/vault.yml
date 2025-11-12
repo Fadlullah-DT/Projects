@@ -1,0 +1,23 @@
+# ansible_user: fadmin
+# ansible_password: P@55word01
+# uw4CpIWdsj4zKEl
+# G51ACgLuO1kE7evo58pcBujL2
+
+# windows 11 default admin
+#ansible_user: adminuser
+#ansible_password: uw4CpIWdsj4zKEl
+
+# windows server 2025 default administrator
+ansible_user: administrator
+ansible_password: G51ACgLuO1kE7evo58pcBujL2
+
+
+# administrator/https://password.link/FK3gtWnv/#RmtsPkgpRXA4bS9lRFdPQT9d
+# inventory setup:
+#  ansible_host: 172.16.3.209
+#           ansible_port: 5986
+#       vars:
+#         ansible_connection: winrm
+#         ansible_winrm_scheme: https
+#         ansible_winrm_transport: credssp
+#         ansible_winrm_server_cert_validation: ignore

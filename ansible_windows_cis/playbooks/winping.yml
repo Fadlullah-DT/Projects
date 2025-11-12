@@ -1,0 +1,13 @@
+- name: Test WinRM connection to Windows hosts
+  hosts: windows
+  gather_facts: false
+  vars_files:
+    - /home/fadmin/WindowsHardening/ansible_windows_cis/group_vars/windows/vault.yml
+  tasks:
+    - name: Ensure we can ping WinRM
+      win_ping:
+
+    - name: Show connection details (for debug)
+      debug:
+        msg: "Connected to {{ inventory_hostname }} via {{ ansible_winrm_scheme }}:{{ ansible_port }} as {{ ansible_user }}"
+      when: ansible_user is defined 

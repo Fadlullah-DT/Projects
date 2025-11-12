@@ -1,0 +1,13 @@
+- name: Debug Hyper-V check
+  hosts: Win11-103125
+  gather_facts: no
+  tasks:
+    - name: "PRELIM | Check Hyper-V Installation"
+      ansible.windows.win_shell: |
+        Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All |
+        Select-Object -ExpandProperty State | Out-String
+      register: discovered_hyper_v_installed
+
+    - name: Show output structure
+      debug:
+        var: discovered_hyper_v_installed

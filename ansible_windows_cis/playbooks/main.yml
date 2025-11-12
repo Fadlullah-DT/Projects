@@ -1,0 +1,14 @@
+---
+- name: Apply CIS Benchmark to Windows 11
+  hosts: windows
+  gather_facts: yes
+  roles:
+    - role: ansible-lockdown.windows_11_cis
+
+  vars:
+    win11cis_rule_5_20: false  # Skip disabling Remote Desktop Configuration (SessionEnv)
+    win11cis_rule_5_21: false  # Skip disabling Remote Desktop Services (TermService)
+    win11cis_rule_5_39: false  # Skip disable Windows Remote Management (WS-Management) (WinRM)
+    rule_18.10.56.3.9.4: false  # 
+    rule_18.10.56.3.2.1: false  # skip disabling the Allow users to connect remotely by using Remote Desktop Services' is set to 'Disabled
+    rule_18.10.88.2.2: false  # skip 'Ensure Allow remote server management through WinRM is set to Disabled

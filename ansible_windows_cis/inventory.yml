@@ -1,0 +1,16 @@
+all:
+  children:
+    windows:
+      hosts:
+        amjc-hyperv-host-01:
+          ansible_host: 172.16.50.18
+          ansible_port: 5986
+        amjc-hyperv-host-02:
+          ansible_host: 172.16.50.17
+          ansible_port: 5986
+      vars:
+        ansible_connection: winrm
+        ansible_winrm_scheme: https
+        ansible_winrm_transport: credssp
+        ansible_winrm_server_cert_validation: ignore
+

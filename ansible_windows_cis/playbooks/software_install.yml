@@ -1,0 +1,54 @@
+---
+# Playbook for creating AIMS NG shortcut on Windows hosts
+- name: Create AIMS NG Shortcut on Windows Hosts
+  hosts: windows
+  gather_facts: true
+
+  tasks:
+    - name: Setup and Install Chocolatey if not present using powershell.
+      when: ansible_os_family == "Windows"
+      tags: chocolatey
+      block:
+        - name: Check if Chocolatey is already installed
+          ansible.windows.win_shell: |
+            if (Test-Path -Path "$env:ProgramData\chocolatey\choco.exe") {
+              Write-Output "Chocolatey is already installed."
+              exit 0
+            } else {
+              Write-Output "Chocolatey is not installed."
+              exit 1
+            }
+          register: choco_check
+          failed_when: false
+          changed_when: choco_check.rc == 1
+
+        - name: Install Chocolatey
+          ansible.windows.win_shell: |
+            Set-ExecutionPolicy Bypass -Scope Process -Force;
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
+            iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+          args:
+            executable: powershell.exe
+          when: choco_check.rc == 1
+
+        - name: Verify Chocolatey installation
+          ansible.windows.win_shell: choco --version
+          register: choco_version
+          changed_when: false
+
+        - name: Display Chocolatey version
+          ansible.builtin.debug:
+            msg: "Chocolatey version {{ choco_version.stdout_lines[0] }} installed successfully"
+          when: choco_check.rc == 1
+
+    - name: Install Google Chrome for all users using Chocolatey
+      when: ansible_os_family == "Windows"
+      tags: google-chrome
+      block:
+        - name: Install Google Chrome
+          chocolatey.chocolatey.win_chocolatey:
+            name:
+              - googlechrome
+            state: latest
+            ignore_checksums: true
+          register: choco_install
